@@ -43,3 +43,4 @@
 /Users/x/ProyectosFEI/TorneoServiciosIAM/obj/Debug/net10.0/TorneoServiciosIAM.pdb
 /Users/x/ProyectosFEI/TorneoServiciosIAM/obj/Debug/net10.0/TorneoServiciosIAM.genruntimeconfig.cache
 /Users/x/ProyectosFEI/TorneoServiciosIAM/obj/Debug/net10.0/ref/TorneoServiciosIAM.dll
+/Users/x/ProyectosFEI/TorneoServiciosIAM/obj/Debug/net10.0/TorneoServiciosIAM.sourcelink.json

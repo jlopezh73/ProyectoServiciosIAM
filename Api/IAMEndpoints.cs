@@ -12,8 +12,9 @@ public static class IAMEndpoints
         var group = app.MapGroup("/api/iam")
                        .WithTags("IAM");
 
+        
 
-        app.MapPost("/validarUsuario", async (ISender mediator,
+        group.MapPost("/validarUsuario", async (ISender mediator,
                                               PeticionInicioSesionDTO peticion,
                                               HttpContext context) =>
          {
@@ -27,9 +28,10 @@ public static class IAMEndpoints
 
 
 
-        app.MapGet("/usuarios", async (ISender mediator) =>
+        group.MapGet("/usuarios", async (ISender mediator) =>
         {
-            var resultado = await mediator.Send(new GetAllUsuariosQuery());
+            System.Console.WriteLine("Devolviendo todos los usuarios...");
+            var resultado = await mediator.Send(new GetAllUsuariosQuery());            
             return Results.Ok(resultado);
         })
         .WithName("ObtenerTodosLosUsuarios");
