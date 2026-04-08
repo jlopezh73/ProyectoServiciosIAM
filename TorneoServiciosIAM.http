@@ -1,0 +1,6 @@
+@TorneoServiciosIAM_HostAddress = http://localhost:5130
+
+GET {{TorneoServiciosIAM_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
