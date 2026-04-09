@@ -5,7 +5,7 @@ namespace TorneoServiciosIAM.Application.Interfaces;
 public interface IUsuariosRepository
 {
     public Task<RespuestaValidacionUsuarioDTO>
-    ValidarUsuario(PeticionInicioSesionDTO peticionInicioSesion, String ip);
+    ValidarUsuario(PeticionInicioSesionDTO peticionInicioSesion);
     public Task<List<UsuarioDTO>> ObtenerTodosLosUsuariosAsync();
     /*public Task CrearUsuarioAsync(UsuarioDTO usuarioDTO);
     public Task<UsuarioDTO> ObtenerUsuarioPorIdAsync(int idUsuario);

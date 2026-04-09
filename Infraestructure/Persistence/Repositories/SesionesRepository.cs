@@ -5,6 +5,7 @@ using TorneoServiciosIAM.Domain;
 using MongoDB.Driver;
 using System.Text;
 using System.Security.Cryptography;
+using System.Threading.Tasks;
 
 
 namespace TorneoServiciosIAM.Infrastructure.Persistence;
@@ -16,9 +17,12 @@ public class SesionesRepository : ISesionesRepository
     private IMongoDatabase _database;
     private int noHoras;
     private String key;
-    public SesionesRepository(IConfiguration configuration,
-                            IMongoDatabase _database
-                            //IGeneradorTokensService _generadorTokensService
+    private ILogger<UsuariosRepository> _iLogger;
+    private ITokenRepository _tokenRepository;
+    public SesionesRepository(ILogger<UsuariosRepository> iLogger,
+                            IConfiguration configuration,
+                            IMongoDatabase database,
+                            ITokenRepository tokenRepository
                             )
     {
         
@@ -26,11 +30,14 @@ public class SesionesRepository : ISesionesRepository
 
         noHoras = Int32.Parse(configuration["JWTSettings:Duration"]);
         key = (String)configuration["JWTSettings:Key"];
+        _database = database;
+        _iLogger = iLogger;
+        _tokenRepository = tokenRepository;
     }
 
     public UsuarioSesionDTO? BuscarUltimaSesion(UsuarioDTO usuario)
     {
-        var hoy = DateTime.Now.AddHours(noHoras);
+        var hoy = DateTime.Now.AddHours(-noHoras);
         var sesion = _database.GetCollection<UsuarioSesion>("UsuariosSesiones").Find(u => u.FechaInicio > hoy).FirstOrDefaultAsync().Result;
         if (sesion != null)
         {
@@ -50,7 +57,7 @@ public class SesionesRepository : ISesionesRepository
 
     }
 
-    public UsuarioSesionDTO? GenerarSesion(UsuarioDTO usuario,
+    public  UsuarioSesionDTO? GenerarSesion(UsuarioDTO usuario,
                                string ip)
     {
         var sesion = new UsuarioSesion()
@@ -60,8 +67,13 @@ public class SesionesRepository : ISesionesRepository
             FechaUltimoAcceso = DateTime.Now,
             DireccionIP = ip,
         };
-        sesion.Token = Guid.NewGuid().ToString();
+
         _database.GetCollection<UsuarioSesion>("UsuariosSesiones").InsertOneAsync(sesion);
+
+        sesion.Token = Guid.NewGuid().ToString();
+        sesion.Token = _tokenRepository.GenerarToken(usuario, key, noHoras, sesion.ID);
+
+        
 
         var sesionDTO = new UsuarioSesionDTO()
         {
@@ -79,7 +91,11 @@ public class SesionesRepository : ISesionesRepository
 
     private void AsignarTokenSesion(UsuarioSesionDTO sesion, string token)
     {
-        //_dao.AsignarTokenSesion(sesion.ID, token);
+        var sesiones = _database.GetCollection<UsuarioSesion>("UsuariosSesiones");
+        var filter = Builders<UsuarioSesion>.Filter.Eq(u => u.ID, sesion.ID);        
+        var update = Builders<UsuarioSesion>.Update.Set(u => u.Token, token);        
+        var result = sesiones.UpdateOneAsync(filter, update).Result;
+        
         /*_bitacoraService.RegistrarAccion(
             new UsuarioAccionDTO() {
                 FechaHora = DateTime.Now,

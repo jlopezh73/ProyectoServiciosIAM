@@ -30,15 +30,14 @@ public static class IAMEndpoints
 
         group.MapGet("/usuarios", async (ISender mediator) =>
         {
-            System.Console.WriteLine("Devolviendo todos los usuarios...");
-            var resultado = await mediator.Send(new GetAllUsuariosQuery());            
+            var resultado = await mediator.Send(new GetAllUsuariosQuery());
             return Results.Ok(resultado);
         })
-        .WithName("ObtenerTodosLosUsuarios");
-        /*.RequireAuthorization(auth =>
+        .WithName("ObtenerTodosLosUsuarios")        
+        .RequireAuthorization(auth =>
         {
-           auth.RequireRole("Administrador General");
-        });*/
+           auth.RequireRole("Administrador");
+        });
 
 
         /*app.MapPost("/api/Identidad/usuario", async (IIdentidadService service,

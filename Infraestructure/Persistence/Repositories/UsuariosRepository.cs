@@ -11,25 +11,23 @@ namespace TorneoServiciosIAM.Infrastructure.Persistence;
 public class UsuariosRepository : IUsuariosRepository
 {
     private ILogger<UsuariosRepository> _iLogger;
-    private RespuestaValidacionUsuarioDTO _respuesta;
-    private ISesionesRepository _sesionesRepo;
+    private RespuestaValidacionUsuarioDTO _respuesta; 
     private IMongoDatabase _database;
 
 
     public UsuariosRepository(ILogger<UsuariosRepository> iLogger,
-            IMongoDatabase database,
-            ISesionesRepository sesionesRepo,
+            IMongoDatabase database,            
             RespuestaValidacionUsuarioDTO respuesta)
     {            
         this._iLogger = iLogger;
         this._respuesta = respuesta;
-        this._database = database;
-        this._sesionesRepo = sesionesRepo;
+        this._database = database;        
     }
 
     public async Task<List<UsuarioDTO>> ObtenerTodosLosUsuariosAsync()
     {
-        var usuarios = _database.GetCollection<Usuario>("Usuarios").Find(_ => true).ToListAsync().Result;
+        var usuarios = _database.GetCollection<Usuario>("Usuarios")
+                        .Find(_ => true).ToListAsync().Result;
         var usuariosDTO = usuarios.Select(u => new UsuarioDTO()
         {
             Activo = u.Activo,
@@ -44,7 +42,7 @@ public class UsuariosRepository : IUsuariosRepository
     }
 
     public async Task<RespuestaValidacionUsuarioDTO>
-                    ValidarUsuario(PeticionInicioSesionDTO peticionInicioSesion, String ip)
+                    ValidarUsuario(PeticionInicioSesionDTO peticionInicioSesion)
     {
         try
         {
@@ -57,8 +55,10 @@ public class UsuariosRepository : IUsuariosRepository
                 .ToLower();
             peticionInicioSesion.password = passwordMD5;
 
-            var usuario = _database.GetCollection<Usuario>("Usuarios").Find(u => u.CorreoElectronico.Equals(peticionInicioSesion.correoElectronico) &&
-                                                                             u.Password.Equals(peticionInicioSesion.password)).FirstOrDefaultAsync().Result;
+            var usuario = _database.GetCollection<Usuario>("Usuarios")
+                .Find(u => u.CorreoElectronico.Equals(peticionInicioSesion.correoElectronico) &&
+                u.Password.Equals(peticionInicioSesion.password) && u.Activo == 1).FirstOrDefaultAsync().Result;
+
             if (usuario != null)
             {
                 var usuarioDTO = new UsuarioDTO()
@@ -69,13 +69,7 @@ public class UsuariosRepository : IUsuariosRepository
                     Paterno = usuario.Paterno,
                     Materno = usuario.Materno,
                     Nombre = usuario.Nombre
-                };
-                var sesion = _sesionesRepo.BuscarUltimaSesion(usuarioDTO);
-                if (sesion == null)
-                {
-                    sesion = _sesionesRepo.GenerarSesion(usuarioDTO, ip);
-                }
-                _respuesta.token = sesion.Token;
+                };                
                 _respuesta.correcto = true;
                 _respuesta.usuario = usuarioDTO;
             } else {
