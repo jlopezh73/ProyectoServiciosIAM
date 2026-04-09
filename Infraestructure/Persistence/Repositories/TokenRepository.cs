@@ -26,7 +26,7 @@ class TokenRepository : ITokenRepository
         var issuer = _configuration["JWTSettings:Issuer"];
         var audience = _configuration["JWTSettings:Audience"];
         var tokenKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key));
-        var expiraToken = DateTime.Now.AddHours(noHoras).AddHours(6);
+        var expiraToken = DateTime.Now.AddHours(noHoras).AddHours(noHoras);
         var identidad = new ClaimsIdentity(new List<Claim>{
             new Claim(JwtRegisteredClaimNames.Iss, issuer),
             new Claim(JwtRegisteredClaimNames.Email, usuario.CorreoElectronico),

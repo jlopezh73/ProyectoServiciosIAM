@@ -38,7 +38,9 @@ public class SesionesRepository : ISesionesRepository
     public UsuarioSesionDTO? BuscarUltimaSesion(UsuarioDTO usuario)
     {
         var hoy = DateTime.Now.AddHours(-noHoras);
-        var sesion = _database.GetCollection<UsuarioSesion>("UsuariosSesiones").Find(u => u.FechaInicio > hoy).FirstOrDefaultAsync().Result;
+        var sesion = _database.GetCollection<UsuarioSesion>("UsuariosSesiones")
+                     .Find(u => u.FechaInicio > hoy && u.IDUsuario.Equals(usuario.ID))
+                               .FirstOrDefaultAsync().Result;
         if (sesion != null)
         {
             return new UsuarioSesionDTO()

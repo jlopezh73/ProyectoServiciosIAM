@@ -33,7 +33,7 @@ public static class IAMEndpoints
             var resultado = await mediator.Send(new GetAllUsuariosQuery());
             return Results.Ok(resultado);
         })
-        .WithName("ObtenerTodosLosUsuarios")        
+        .WithName("ObtenerTodosLosUsuarios")
         .RequireAuthorization(auth =>
         {
            auth.RequireRole("Administrador");
